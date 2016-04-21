@@ -56,13 +56,12 @@ public class UriRegistryPopulator implements ResourceLoaderAware {
 	/**
 	 * Populate the provided registry with the contents of
 	 * the property files indicated by {@code resourceUris}.
-	 * Any existing registrations in the registry will be
-	 * overwritten.
 	 *
-	 * @param registry the registry to populate
-	 * @param resourceUris string(s) indicating the URIs to load properties from.
+	 * @param overwrite    if {@code true}, overwrites any pre-existing registrations with the same key
+	 * @param registry     the registry to populate
+	 * @param resourceUris string(s) indicating the URIs to load properties from
 	 */
-	public Map<String, URI> populateRegistry(UriRegistry registry, String... resourceUris) {
+	public Map<String, URI> populateRegistry(boolean overwrite, UriRegistry registry, String... resourceUris) {
 		Assert.notEmpty(resourceUris);
 		Map<String, URI> registered = new HashMap<>();
 		for (String resourceUri : resourceUris) {
@@ -73,6 +72,15 @@ public class UriRegistryPopulator implements ResourceLoaderAware {
 				for (String key : properties.stringPropertyNames()) {
 					try {
 						URI uri = new URI(properties.getProperty(key));
+						if (!overwrite) {
+							try  {
+								registry.find(key);
+							}
+							catch (IllegalArgumentException e) {
+								// this key already exists
+								continue;
+							}
+						}
 						registry.register(key, uri);
 						registered.put(key, uri);
 					}

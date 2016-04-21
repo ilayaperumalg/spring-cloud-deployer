@@ -53,7 +53,7 @@ public class UriRegistryPopulatorTests {
 		populator.setResourceLoader(resourceLoader);
 
 		UriRegistry registry = new InMemoryUriRegistry();
-		populator.populateRegistry(registry, localUri);
+		populator.populateRegistry(true, registry, localUri);
 		assertTrue(resourceLoader.getRequestedLocations().contains(localUri));
 		assertThat(resourceLoader.getRequestedLocations().size(), is(1));
 		assertThat(registry.findAll().size(), is(this.uris.size()));
