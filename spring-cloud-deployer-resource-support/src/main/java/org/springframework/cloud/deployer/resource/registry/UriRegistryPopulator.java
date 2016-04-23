@@ -40,6 +40,7 @@ import org.springframework.util.Assert;
  * provided by {@link #resourceLoader}.
  *
  * @author Patrick Peralta
+ * @author Ilayaperumal Gopinathan
  */
 public class UriRegistryPopulator implements ResourceLoaderAware {
 
@@ -60,6 +61,7 @@ public class UriRegistryPopulator implements ResourceLoaderAware {
 	 * @param overwrite    if {@code true}, overwrites any pre-existing registrations with the same key
 	 * @param registry     the registry to populate
 	 * @param resourceUris string(s) indicating the URIs to load properties from
+	 * @return the registered URI values in the map with the keys being the property names
 	 */
 	public Map<String, URI> populateRegistry(boolean overwrite, UriRegistry registry, String... resourceUris) {
 		Assert.notEmpty(resourceUris);
@@ -74,11 +76,12 @@ public class UriRegistryPopulator implements ResourceLoaderAware {
 						URI uri = new URI(properties.getProperty(key));
 						if (!overwrite) {
 							try  {
-								registry.find(key);
+								if (registry.find(key) != null) {
+									continue;
+								}
 							}
 							catch (IllegalArgumentException e) {
-								// this key already exists
-								continue;
+								// this key doesn't exists
 							}
 						}
 						registry.register(key, uri);
